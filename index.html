@@ -443,6 +443,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_criação_de_abas">Criação de abas</a></li>
 </ul>
 </li>
+<li><a href="#_utilizando_esp8266_com_micropython">Utilizando ESP8266 com MicroPython</a>
+<ul class="sectlevel2">
+<li><a href="#_controlando_um_servo">Controlando um servo</a></li>
+<li><a href="#_controlando_um_motor_dc">Controlando um motor DC</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -478,9 +484,9 @@ Possuindo noção de sua utilidade é possivel definir uma função como:</p>
 </ul>
 </div>
 <div class="listingblock">
-<div class="title">Listing 1. luiz.ino</div>
+<div class="title">Listing 1. luiz.c</div>
 <div class="content">
-<pre class="highlight"><code class="language-Arduino" data-lang="Arduino">tipo_da_funcao  nomeDaFuncao (Lista_de_Parametros){
+<pre class="highlightjs highlight"><code class="language-c++" data-lang="c++">tipo_da_funcao  nomeDaFuncao (Lista_de_Parametros){
 	// coloque aqui o conjunto de códigos que serão
     // executados quando a função for chamada
 }</code></pre>
@@ -501,7 +507,7 @@ Possuindo noção de sua utilidade é possivel definir uma função como:</p>
 <div class="listingblock">
 <div class="title">Listing 2. sem_retorno.ino</div>
 <div class="content">
-<pre class="highlight"><code class="language-Arduino" data-lang="Arduino">// Executam o codigo dentro do seu corpo
+<pre class="highlightjs highlight"><code class="language-c++" data-lang="c++">// Executam o codigo dentro do seu corpo
 // mas nao retornam nenhum dado
 
 void setup()
@@ -529,7 +535,7 @@ Observe o código abaixo:</p>
 <div class="listingblock">
 <div class="title">Listing 3. com_retorno.ino</div>
 <div class="content">
-<pre class="highlight"><code class="language-Arduino" data-lang="Arduino">void setup(){
+<pre class="highlightjs highlight"><code class="language-c++" data-lang="c++">void setup(){
   Serial.begin(9600);
 }
 
@@ -569,14 +575,14 @@ Desta forma é essencial usufruir de algumas ferramentas que a IDE do Arduino fo
 <div class="ulist">
 <ul>
 <li>
-<p>Identação de código é a organização horizontal de forma hierárquica, possibilitando o entendimento da posição de blocos de códigos. Na IDE do arduino, a autoformatação cuidará de identar todo o seu código e pode ser acessado através do comando CTRL+T. Perceba a diferença de um código identado para um não identado:</p>
+<p>Identação de código é a organização horizontal de forma hierárquica, possibilitando o entendimento da posição de blocos de códigos. Na IDE do arduino, a autoformatação cuidará de identar todo o seu código e pode ser acessado através do comando \textbf{CTRL+T}. Perceba a diferença de um código identado para um não identado:</p>
 </li>
 </ul>
 </div>
 <div class="listingblock">
 <div class="title">Listing 4. com_retorno.ino</div>
 <div class="content">
-<pre class="highlight"><code class="language-Arduino" data-lang="Arduino">void setup(){
+<pre class="highlightjs highlight"><code class="language-c++" data-lang="c++">void setup(){
 Serial.begin(9600);
 }
 void loop()
@@ -617,7 +623,7 @@ Serial.println(c/(e*f));
 <div class="listingblock">
 <div class="title">Listing 5. com_retorno.ino</div>
 <div class="content">
-<pre class="highlight"><code class="language-Arduino" data-lang="Arduino">void setup() {
+<pre class="highlightjs highlight"><code class="language-c++" data-lang="c++">void setup() {
 
   Serial.begin(9600);
 
@@ -730,11 +736,243 @@ Cada aba vai gerar um código .ino próprio, na hora de abrir o código é neces
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_utilizando_esp8266_com_micropython">Utilizando ESP8266 com MicroPython</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_controlando_um_servo">Controlando um servo</h3>
+<div class="paragraph">
+<p>Este tutorial fornece auxílio para o controle de servo motores com o ESP8266. Para fazê-lo utilizaremos Modulação por largura de pulso, que é uma forma de fornecermos uma saída "analógica" em um pino digital, enviando diversos pulsos digitais com largura entre pulsos variada. Devemos levar em consideração apenas da frequência de emissão dos pulsos e a razão cíclica, que é a razão entre o tempo ligado e período de alternância de estados. Para o ESP8266 os pinos 0, 2, 4, 5, 12, 13, 14 e 15 tem suporte para PWM. Há tambem a limitação de que todos os pinos devem estar na mesma frequência e ela deve estar entre 1Hz e 1kHz. Para um servo motor a frequência utilizada será 50Hz. Primeiramente vamos montar o circuito seguindo o esquema abaixo:</p>
+</div>
+<table class="tableblock frame-all grid-all">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Servo</th>
+<th class="tableblock halign-left valign-top">NodeMcu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vcc</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vcc</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GND</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GND</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Signal</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pino 2</p></td>
+</tr>
+</tbody>
+</table>
+<div class="imageblock">
+<div class="content">
+<img src="images/servo.png" alt="Código 5">
+</div>
+<div class="title">Figure 5. Esquemático de controle de servo</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Para controlar o pino 2 do NodeMcu você deve utilizar o pino 5 no programa!
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>No prompt de comunicação crie um objeto do tipo pino:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-Python" data-lang="Python">&gt;&gt;&gt; import machine
+&gt;&gt;&gt; p0 = machine.Pin(5)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Depois criamos um objeto do tipo PWM:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-Python" data-lang="Python">&gt;&gt;&gt; pwm0 = machine.PWM(p0)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Depois mudamos a frequência:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-Python" data-lang="Python">&gt;&gt;&gt; pwm0.freq(50)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Já é possivel controlar o servo motor,ajustando o valor do PWM do pino para qualquer valor entre 0 e 1023 utilizando o seguinte comando:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-Python" data-lang="Python">&gt;&gt;&gt; pwm0.duty(25)
+&gt;&gt;&gt; pwm0.duty(115)
+&gt;&gt;&gt; pwm0.duty(77)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>No código acima nós movemos o servo entre seus extremos e o paramos na metade. Note que os valores do PWM podem variar de acordo com o servo utilizado.
+Por último faremos um programa que gire o servo motor completamente. Copie o código abaixo e na interface de comunicação com o ESP aperte \textbf{CTRL+E} para entrar em modo de colagem, \textbf{CTRL+SHIFT+V} para colar e por fim \textbf{CTRL+D} para enviar.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-Python" data-lang="Python">import time
+
+
+def round(pwm, step):
+    value = 25
+    while True:
+        pwm.duty(value)
+        value = value + step
+        time.sleep_ms(50)
+        if value &lt; 25 or value &gt; 100:
+            step = -step</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para chamar a função digite:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-Python" data-lang="Python">round(pwm0,2)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finalizamos, portanto, esta parte de controle de servo.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_controlando_um_motor_dc">Controlando um motor DC</h3>
+<div class="paragraph">
+<p>Para controlar um motor DC, primeiramente é necessário montar o circuito abaixo:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/motor.png" alt="Código 6">
+</div>
+<div class="title">Figure 6. Esquemático de controle de motor DC</div>
+</div>
+<table class="tableblock frame-all grid-all">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Motor</th>
+<th class="tableblock halign-left valign-top">NodeMcu</th>
+<th class="tableblock halign-left valign-top">Ponte H</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vcc</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">---</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OUT 1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GND</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">---</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OUT 2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">---</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pino 0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IN 1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">---</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pino 1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IN 2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">---</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vcc</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vcc</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">---</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GND</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GND</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Agora faremos um programa que faz o motor girar em uma direção por 2 segundos e gire por mais 2 no sentido contrário. Copie o código abaixo e na interface de comunicação com o ESP aperte \textbf{CTRL+E} para entrar em modo de colagem, \textbf{CTRL+SHIFT+V} para colar e por fim \textbf{CTRL+D} para enviar.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-Python" data-lang="Python">import time
+
+
+def motor(pin1,pin2):
+    while True:
+        pin1.value(0)
+				pin2.value(1)
+				time.sleep_ms(2000)
+				pin1.value(1)
+				pin2.value(0)
+				time.sleep_ms(2000)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Antes de chamar a função devemos criar dois objetos do tipo pino:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-Python" data-lang="Python">&gt;&gt;&gt;import machine
+&gt;&gt;&gt; pin1 = machine.Pin(16, machine.Pin.OUT)
+&gt;&gt;&gt; pin2 = machine.Pin(5, machine.Pin.OUT)</code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Para controlar o pino 0 e 1 do NodeMcu você deve utilizar os pinos 16 e 5 no programa!
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Finalmente chamamos a função:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-C" data-lang="C">&gt;&gt;&gt; motor(pin1,pin2)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finalizamos, portanto, esta parte de controle de motor DC.</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-27 16:10:59 BRT
+Last updated 2017-09-29 19:10:16 BRT
 </div>
 </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
 </body>
 </html>

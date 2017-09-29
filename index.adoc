@@ -3,6 +3,7 @@ Luiz Felipe Santana de Araújo Souza <luizfelipeplm@gmail.com>
 :listing-caption: Listing
 :toc: left
 :icons: font
+:source-highlighter: highlightjs
 
 
 
@@ -19,8 +20,8 @@ Conjunto de comandos agrupados em um bloco, que recebe um nome e através deste 
 * A seguinte sintaxe é necessária para utilizar uma função:
 
 
-[source,Arduino]
-.luiz.ino
+[source,c++]
+.luiz.c
 ----
 tipo_da_funcao  nomeDaFuncao (Lista_de_Parametros){
 	// coloque aqui o conjunto de códigos que serão
@@ -34,7 +35,7 @@ Serão mostrados a seguir 2 principais "tipos" de funções: Funções sem retor
 
 * Quando é não é esperado que a função retorne nenhuma informação para onde ela foi chamada usamos funções sem retorno, sendo utilizado o tipo void. Um exemplo muito comum são as funções setup() e loop() presentes em qualquer código para arduino.
 
-[source,Arduino]
+[source,c++]
 .sem_retorno.ino
 ----
 // Executam o codigo dentro do seu corpo
@@ -56,7 +57,7 @@ void loop()
 * Uma função também pode retornar um resultado à parte do programa que a chamou, para isso a função deve ser do tipo da variável que vai retornar. É possível também fornecer valores para as funções sobre os quais a função deve operar. Para definir os parâmetros de uma função o programador deve explicitá-los como se estive declarando uma variável na Lista_de_Parametros, conforme mostrado em luiz.ino.
 Observe o código abaixo:
 
-[source,Arduino]
+[source,c++]
 .com_retorno.ino
 ----
 void setup(){
@@ -88,7 +89,7 @@ Desta forma é essencial usufruir de algumas ferramentas que a IDE do Arduino fo
 
 * Identação de código é a organização horizontal de forma hierárquica, possibilitando o entendimento da posição de blocos de códigos. Na IDE do arduino, a autoformatação cuidará de identar todo o seu código e pode ser acessado através do comando \textbf{CTRL+T}. Perceba a diferença de um código identado para um não identado:
 
-[source,Arduino]
+[source,c++]
 .com_retorno.ino
 ----
 void setup(){
@@ -123,18 +124,18 @@ d--; }
 Serial.print("Numero de combinacoes possiveis:");
 Serial.println(c/(e*f));
 }
-} 
+}
 ----
 
 Código com identação e espaçamentos adequados:
 
-[source,Arduino]
+[source,c++]
 .com_retorno.ino
 ----
 void setup() {
 
   Serial.begin(9600);
-  
+
 }
 void loop() {
 
@@ -158,28 +159,28 @@ void loop() {
 
       c = c * d;
       d--;
-      
+
     }
 
     e = 1;
     d = b;
     while (d > 1) {
-    
+
       e = e * d;
       d--;
-      
+
     }
 
     f = 1;
     d = a - b;
-    
-    while (d > 1){ 
-    
+
+    while (d > 1){
+
       f = f * d;
       d--;
-      
+
     }
-    
+
     Serial.print("Numero de combinacoes possiveis:");
     Serial.println(c / (e * f));
   }
@@ -210,4 +211,149 @@ WARNING: Cada aba vai gerar um código .ino próprio, na hora de abrir o código
 image::images/cap4.png[Código 4]
 
 
+== Utilizando ESP8266 com MicroPython
 
+===	 Controlando um servo
+
+Este tutorial fornece auxílio para o controle de servo motores com o ESP8266. Para fazê-lo utilizaremos Modulação por largura de pulso, que é uma forma de fornecermos uma saída "analógica" em um pino digital, enviando diversos pulsos digitais com largura entre pulsos variada. Devemos levar em consideração apenas da frequência de emissão dos pulsos e a razão cíclica, que é a razão entre o tempo ligado e período de alternância de estados. Para o ESP8266 os pinos 0, 2, 4, 5, 12, 13, 14 e 15 tem suporte para PWM. Há tambem a limitação de que todos os pinos devem estar na mesma frequência e ela deve estar entre 1Hz e 1kHz. Para um servo motor a frequência utilizada será 50Hz. Primeiramente vamos montar o circuito seguindo o esquema abaixo:
+
+
+[%autowidth]
+|===
+|Servo |NodeMcu
+
+|Vcc
+|Vcc
+
+|GND
+|GND
+
+|Signal
+|Pino 2
+|===
+
+.Esquemático de controle de servo
+image::images/servo.png[Código 5]
+
+WARNING: Para controlar o pino 2 do NodeMcu você deve utilizar o pino 5 no programa!
+
+No prompt de comunicação crie um objeto do tipo pino:
+[source,Python]
+----
+>>> import machine
+>>> p0 = machine.Pin(5)
+----
+
+Depois criamos um objeto do tipo PWM:
+[source,Python]
+----
+>>> pwm0 = machine.PWM(p0)
+----
+
+Depois mudamos a frequência:
+[source,Python]
+----
+>>> pwm0.freq(50)
+----
+
+Já é possivel controlar o servo motor,ajustando o valor do PWM do pino para qualquer valor entre 0 e 1023 utilizando o seguinte comando:
+[source,Python]
+----
+>>> pwm0.duty(25)
+>>> pwm0.duty(115)
+>>> pwm0.duty(77)
+----
+No código acima nós movemos o servo entre seus extremos e o paramos na metade. Note que os valores do PWM podem variar de acordo com o servo utilizado.
+Por último faremos um programa que gire o servo motor completamente. Copie o código abaixo e na interface de comunicação com o ESP aperte \textbf{CTRL+E} para entrar em modo de colagem, \textbf{CTRL+SHIFT+V} para colar e por fim \textbf{CTRL+D} para enviar.
+[source,Python]
+----
+import time
+
+
+def round(pwm, step):
+    value = 25
+    while True:
+        pwm.duty(value)
+        value = value + step
+        time.sleep_ms(50)
+        if value < 25 or value > 100:
+            step = -step
+
+----
+Para chamar a função digite:
+[source,Python]
+----
+round(pwm0,2)
+----
+
+Finalizamos, portanto, esta parte de controle de servo.
+
+===	 Controlando um motor DC
+Para controlar um motor DC, primeiramente é necessário montar o circuito abaixo:
+
+.Esquemático de controle de motor DC
+image::images/motor.png[Código 6]
+
+[%autowidth]
+|===
+|Motor | NodeMcu |Ponte H
+
+|Vcc
+|---
+|OUT 1
+
+|GND
+|---
+|OUT 2
+
+|---
+|Pino 0
+|IN 1
+
+|---
+|Pino 1
+|IN 2
+
+|---
+|Vcc
+|Vcc
+
+|---
+|GND
+|GND
+|===
+
+Agora faremos um programa que faz o motor girar em uma direção por 2 segundos e gire por mais 2 no sentido contrário. Copie o código abaixo e na interface de comunicação com o ESP aperte \textbf{CTRL+E} para entrar em modo de colagem, \textbf{CTRL+SHIFT+V} para colar e por fim \textbf{CTRL+D} para enviar.
+
+[source,Python]
+----
+import time
+
+
+def motor(pin1,pin2):
+    while True:
+        pin1.value(0)
+				pin2.value(1)
+				time.sleep_ms(2000)
+				pin1.value(1)
+				pin2.value(0)
+				time.sleep_ms(2000)
+----
+Antes de chamar a função devemos criar dois objetos do tipo pino:
+
+[source,Python]
+----
+>>>import machine
+>>> pin1 = machine.Pin(16, machine.Pin.OUT)
+>>> pin2 = machine.Pin(5, machine.Pin.OUT)
+----
+WARNING: Para controlar o pino 0 e 1 do NodeMcu você deve utilizar os pinos 16 e 5 no programa!
+
+Finalmente chamamos a função:
+
+[source,C]
+----
+>>> motor(pin1,pin2)
+----
+
+Finalizamos, portanto, esta parte de controle de motor DC.
